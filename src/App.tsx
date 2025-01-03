@@ -74,7 +74,7 @@ function App() {
     if (!excelFile) return;
 
     setExcelFile({
-      sheets: excelFile.sheets.map((sheet) => {
+      sheets: excelFile.sheets.map((sheet: Sheet) => {
         if (sheet.name === sheetName) {
           return {
             ...sheet,
@@ -93,7 +93,7 @@ function App() {
     if (!excelFile) return;
 
     setExcelFile({
-      sheets: excelFile.sheets.map((sheet) => (sheet.name === oldName ? { ...sheet, name: newName } : sheet)),
+      sheets: excelFile.sheets.map((sheet: Sheet) => (sheet.name === oldName ? { ...sheet, name: newName } : sheet)),
     });
   };
 
@@ -101,10 +101,10 @@ function App() {
     if (!excelFile) return;
 
     const selectedData = excelFile.sheets
-      .filter((sheet) => selectedSheets.has(sheet.name))
-      .map((sheet) => ({
+      .filter((sheet: Sheet) => selectedSheets.has(sheet.name))
+      .map((sheet: Sheet) => ({
         sheetName: sheet.name,
-        data: sheet.data.map((row) => {
+        data: sheet.data.map((row: Record<string, unknown>) => {
           const newRow: Record<string, unknown> = {};
           Object.entries(row).forEach(([key, value]) => {
             const newKey = sheet.renamedHeaders?.[key] || key;
@@ -129,7 +129,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted p-4">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-b from-background to-muted">
       <ThemeSwitcher />
       <Card className="w-full max-w-2xl shadow-lg">
         <CardHeader>
@@ -140,38 +140,38 @@ function App() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid w-full items-center gap-4">
+          <div className="grid items-center w-full gap-4">
             <Input
               type="file"
               accept=".xlsx,.xls"
               onChange={handleFileUpload}
-              className="cursor-pointer px-1 h-auto file:bg-primary file:text-primary-foreground file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 file:cursor-pointer hover:file:bg-primary/90"
+              className="h-auto px-1 cursor-pointer file:bg-primary file:text-primary-foreground file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 file:cursor-pointer hover:file:bg-primary/90"
               disabled={isLoading}
             />
           </div>
 
           {isLoading && (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <div className="w-8 h-8 border-b-2 rounded-full animate-spin border-primary"></div>
             </div>
           )}
 
           {!isLoading && excelFile && (
             <div className="space-y-4">
-              <div className="rounded-lg border p-4">
-                <h3 className="font-medium mb-2">Select Sheets to Export</h3>
+              <div className="p-4 border rounded-lg">
+                <h3 className="mb-2 font-medium">Select Sheets to Export</h3>
                 <div className="space-y-2">
-                  {excelFile?.sheets.map((sheet) => (
-                    <div key={sheet.name} className="rounded-lg border bg-card">
+                  {excelFile?.sheets.map((sheet: Sheet) => (
+                    <div key={sheet.name} className="border rounded-lg bg-card">
                       <div
                         onClick={() => toggleSheet(sheet.name)}
-                        className="flex items-center space-x-2 p-4 hover:bg-muted/50 cursor-pointer transition-colors"
+                        className="flex items-center p-4 space-x-2 transition-colors cursor-pointer hover:bg-muted/50"
                       >
                         <Checkbox
                           id={sheet.name}
                           checked={selectedSheets.has(sheet.name)}
                           onCheckedChange={() => toggleSheet(sheet.name)}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
                         />
                         <div className="flex-1 grid gap-1.5">
                           <label className="text-sm font-medium leading-none">{sheet.name}</label>
@@ -181,27 +181,29 @@ function App() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => {
+                            onClick={(e: React.MouseEvent) => {
                               e.stopPropagation();
                               setExpandedSheet(expandedSheet === sheet.name ? null : sheet.name);
                             }}
                           >
                             {expandedSheet === sheet.name ? (
-                              <ChevronUp className="h-4 w-4" />
+                              <ChevronUp className="w-4 h-4" />
                             ) : (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="w-4 h-4" />
                             )}
                           </Button>
                         )}
                       </div>
 
                       {expandedSheet === sheet.name && (
-                        <div className="p-4 border-t space-y-4">
+                        <div className="p-4 space-y-4 border-t">
                           <div className="space-y-2">
                             <h4 className="text-sm font-medium">Sheet Name</h4>
                             <Input
                               value={sheet.name}
-                              onChange={(e) => updateSheetName(sheet.name, e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                updateSheetName(sheet.name, e.target.value)
+                              }
                               className="h-8"
                             />
                           </div>
@@ -212,7 +214,9 @@ function App() {
                                 <div key={header} className="flex items-center gap-2">
                                   <Input
                                     defaultValue={sheet.renamedHeaders?.[header] || header}
-                                    onChange={(e) => updateHeaderName(sheet.name, header, e.target.value)}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                      updateHeaderName(sheet.name, header, e.target.value)
+                                    }
                                     className="h-8"
                                     placeholder={header}
                                   />

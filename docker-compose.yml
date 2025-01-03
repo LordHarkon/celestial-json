@@ -1,0 +1,8 @@
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - "32144:80"
+    restart: unless-stopped
+    pull_policy: build
