@@ -12,31 +12,47 @@ function App() {
   const [excelFile, setExcelFile] = useState<ExcelFile | null>(null);
   const [selectedSheets, setSelectedSheets] = useState<Set<string>>(new Set());
   const [expandedSheet, setExpandedSheet] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setIsLoading(true);
     const reader = new FileReader();
+
     reader.onload = (e) => {
-      const data = new Uint8Array(e.target?.result as ArrayBuffer);
-      const workbook = XLSX.read(data, { type: "array" });
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
 
-      const sheets: Sheet[] = workbook.SheetNames.map((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
-        const headers = Object.keys(jsonData[0] || {});
+        const sheets: Sheet[] = workbook.SheetNames.map((sheetName) => {
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
+          const headers = Object.keys(jsonData[0] || {});
 
-        return {
-          name: sheetName,
-          headers,
-          data: jsonData,
-        };
-      });
+          return {
+            name: sheetName,
+            headers,
+            data: jsonData,
+          };
+        });
 
-      setExcelFile({ sheets });
-      setSelectedSheets(new Set()); // Reset selections on new file
+        setExcelFile({ sheets });
+        setSelectedSheets(new Set());
+      } catch (error) {
+        console.error("Error processing file:", error);
+        // You might want to show an error message to the user here
+      } finally {
+        setIsLoading(false);
+      }
     };
+
+    reader.onerror = () => {
+      console.error("Error reading file");
+      setIsLoading(false);
+    };
+
     reader.readAsArrayBuffer(file);
   };
 
@@ -130,10 +146,17 @@ function App() {
               accept=".xlsx,.xls"
               onChange={handleFileUpload}
               className="cursor-pointer px-1 h-auto file:bg-primary file:text-primary-foreground file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 file:cursor-pointer hover:file:bg-primary/90"
+              disabled={isLoading}
             />
           </div>
 
-          {excelFile && (
+          {isLoading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          )}
+
+          {!isLoading && excelFile && (
             <div className="space-y-4">
               <div className="rounded-lg border p-4">
                 <h3 className="font-medium mb-2">Select Sheets to Export</h3>
