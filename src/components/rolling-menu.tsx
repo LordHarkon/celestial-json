@@ -43,6 +43,16 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
     const filteredData = jsonData.flatMap((sheet) =>
       sheet.data
         .filter((item) => {
+          // Check if item has more than just an ID or index
+          const hasContent = Object.entries(item).some(([key, value]) => {
+            if (!value) return false;
+            // Skip if it's just an ID/index field
+            if (key.toLowerCase().includes("id") || key === "0") return false;
+            return true;
+          });
+
+          if (!hasContent) return false;
+
           return headerConfigs.every((config) => {
             if (!config.name || !config.type || !config.value) return true;
             const value = item[config.name];
