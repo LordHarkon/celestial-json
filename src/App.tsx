@@ -90,7 +90,7 @@ function App() {
   const handlePreloadedFile = async (path: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/src/assets/celestials/${path}`);
+      const response = await fetch(`/celestials/${path}`);
       const arrayBuffer = await response.arrayBuffer();
       const data = new Uint8Array(arrayBuffer);
       const workbook = XLSX.read(data, { type: "array" });
