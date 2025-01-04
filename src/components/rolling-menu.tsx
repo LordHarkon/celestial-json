@@ -2,15 +2,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { JsonData, HeaderConfig, HeaderType } from "@/types/excel";
+import type { JsonData, HeaderConfig, HeaderType, Settings } from "@/types/excel";
 import { RolledItemCard } from "./rolled-item-card";
 import { X } from "lucide-react";
 
 type RollingMenuProps = {
   jsonData: JsonData;
+  settings?: Settings;
 };
 
-export function RollingMenu({ jsonData }: RollingMenuProps) {
+export function RollingMenu({ jsonData, settings }: RollingMenuProps) {
   const [headerConfigs, setHeaderConfigs] = useState<HeaderConfig[]>([]);
   const [rolledItem, setRolledItem] = useState<{ item: Record<string, unknown>; sheetName: string } | null>(null);
 
@@ -153,7 +154,13 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
         🎲 Roll Item
       </Button>
 
-      {rolledItem && <RolledItemCard item={rolledItem.item} sheetName={rolledItem.sheetName} />}
+      {rolledItem && (
+        <RolledItemCard
+          item={rolledItem.item}
+          sheetName={rolledItem.sheetName}
+          hiddenHeaders={new Set(settings?.hiddenHeaders ?? [])}
+        />
+      )}
     </div>
   );
 }

@@ -25,3 +25,8 @@ export type RollConfig = {
   selectedSheets: Set<string>;
   headers: HeaderConfig[];
 };
+
+export type Settings = {
+  mappings: Record<string, string>;
+  hiddenHeaders: string[];
+};

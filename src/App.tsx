@@ -4,9 +4,9 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Info } from "lucide-react";
 import { useState } from "react";
 import * as XLSX from "xlsx";
-import type { ExcelFile, Sheet, JsonData } from "@/types/excel";
+import type { ExcelFile, Sheet, JsonData, Settings } from "@/types/excel";
 import { RollingMenu } from "@/components/rolling-menu";
-import { HeaderMappingDialog } from "@/components/header-mapping-dialog";
+import { SettingsDialog } from "@/components/settings-dialog";
 import { FileSelector } from "@/components/file-selector";
 import { TutorialDialog } from "@/components/tutorial-dialog";
 import { SheetSelectorDialog } from "@/components/sheet-selector-dialog";
@@ -18,6 +18,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [jsonData, setJsonData] = useState<JsonData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [settings, setSettings] = useState<Settings>({ mappings: {}, hiddenHeaders: [] });
 
   const resetStates = () => {
     setSelectedSheets(new Set());
@@ -145,15 +146,16 @@ function App() {
     setIsDialogOpen(false);
   };
 
-  const updateHeaders = (mappings: Record<string, string>) => {
+  const updateHeaders = (newSettings: Settings) => {
     if (!jsonData) return;
+    setSettings(newSettings);
 
     const updatedData = jsonData.map((sheet) => ({
       sheetName: sheet.sheetName,
       data: sheet.data.map((item) => {
         const newItem: Record<string, string | number | null> = {};
         Object.entries(item).forEach(([key, value]) => {
-          const newKey = mappings[key] || key;
+          const newKey = newSettings.mappings[key] || key;
           if (newItem[newKey] === undefined) {
             newItem[newKey] = value as string | number | null;
           }
@@ -182,7 +184,7 @@ function App() {
           <TutorialDialog />
           {!isLoading && excelFile && (
             <>
-              {jsonData && <HeaderMappingDialog jsonData={jsonData} onUpdateHeaders={updateHeaders} />}
+              {jsonData && <SettingsDialog jsonData={jsonData} onUpdateHeaders={updateHeaders} />}
               <SheetSelectorDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
@@ -236,7 +238,7 @@ function App() {
 
           {jsonData && (
             <div className="space-y-4">
-              <RollingMenu jsonData={jsonData} />
+              <RollingMenu jsonData={jsonData} settings={settings} />
               {/* <div className="p-4 border rounded-lg">
                 <h3 className="mb-2 font-medium">Loaded JSON Data</h3>
                 <pre className="p-4 rounded bg-muted overflow-auto max-h-[400px] custom-scrollbar">

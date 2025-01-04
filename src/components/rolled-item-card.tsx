@@ -5,13 +5,15 @@ import { Button } from "./ui/button";
 type RolledItemCardProps = {
   item: Record<string, unknown>;
   sheetName: string;
+  hiddenHeaders: Set<string>;
 };
 
-export function RolledItemCard({ item, sheetName }: RolledItemCardProps) {
+export function RolledItemCard({ item, sheetName, hiddenHeaders }: RolledItemCardProps) {
   const isError = "error" in item;
 
   const handleCopy = () => {
     const text = Object.entries(item)
+      .filter(([key]) => !hiddenHeaders.has(key))
       .map(([key, value]) => `${key}: ${value}`)
       .join("\n");
     navigator.clipboard.writeText(text);
@@ -38,12 +40,14 @@ export function RolledItemCard({ item, sheetName }: RolledItemCardProps) {
       </CardHeader>
       <CardContent>
         <dl className="space-y-4">
-          {Object.entries(item).map(([key, value]) => (
-            <div key={key} className="flex flex-col space-y-1">
-              <span className="font-medium">{key}:</span>
-              <span className="whitespace-pre text-muted-foreground text-wrap">{String(value)}</span>
-            </div>
-          ))}
+          {Object.entries(item)
+            .filter(([key]) => !hiddenHeaders.has(key))
+            .map(([key, value]) => (
+              <div key={key} className="flex flex-col space-y-1">
+                <span className="font-medium">{key}:</span>
+                <span className="whitespace-pre text-muted-foreground text-wrap">{String(value)}</span>
+              </div>
+            ))}
         </dl>
       </CardContent>
     </Card>

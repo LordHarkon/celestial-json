@@ -599,6 +599,13 @@
   dependencies:
     "@radix-ui/react-use-layout-effect" "1.1.0"
 
+"@radix-ui/react-label@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-label/-/react-label-2.1.1.tgz#f30bd577b26873c638006e4f65761d4c6b80566d"
+  integrity sha512-UUw5E4e/2+4kFMH7+YxORXGWggtY6sM8WIwh5RZchhLuUg2H1hc98Py+pr8HMz6rdaYrK2t296ZEjYLOCO5uUw==
+  dependencies:
+    "@radix-ui/react-primitive" "2.0.1"
+
 "@radix-ui/react-menu@2.1.4":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-menu/-/react-menu-2.1.4.tgz#ac7aec296f29608206a7c6ef6335d8f102edaa95"
@@ -703,6 +710,13 @@
     "@radix-ui/react-visually-hidden" "1.1.1"
     aria-hidden "^1.1.1"
     react-remove-scroll "^2.6.1"
+
+"@radix-ui/react-separator@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-separator/-/react-separator-1.1.1.tgz#dd60621553c858238d876be9b0702287424866d2"
+  integrity sha512-RRiNRSrD8iUiXriq/Y5n4/3iE8HzqgLHsusUSg5jVpU2+3tqcUFPJXHDymwEypunc2sWxDUS3UC+rkZRlHedsw==
+  dependencies:
+    "@radix-ui/react-primitive" "2.0.1"
 
 "@radix-ui/react-slot@1.1.1", "@radix-ui/react-slot@^1.1.1":
   version "1.1.1"
