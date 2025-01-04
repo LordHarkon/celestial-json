@@ -198,7 +198,7 @@ function App() {
                     <span className="sr-only">Configure Sheets</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-h-[98vh] sm:max-h-[80vh] w-[96vw] sm:w-full flex flex-col">
+                <DialogContent className="max-h-[95vh] sm:max-h-[80vh] w-[96vw] sm:w-full flex flex-col">
                   <DialogHeader>
                     <DialogTitle>Select Sheets to Use</DialogTitle>
                     <DialogDescription className="text-left">
