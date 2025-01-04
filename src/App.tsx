@@ -281,10 +281,10 @@ function App() {
             </div>
           )}
 
-          <CardTitle className="text-2xl font-bold text-center">Celestial JSON</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Celestial Roller</CardTitle>
           <CardDescription className="text-center">
-            A specialized tool for Celestial CYOA spreadsheets. Convert Excel sheets to JSON format while customizing
-            sheet and column names.
+            A specialized tool for Celestial CYOA spreadsheets. Load Excel files and use the roller to randomly select
+            items based on filters. You can customize sheet names and standardize headers across sheets.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -303,6 +303,8 @@ function App() {
               disabled={isLoading}
             />
           </div>
+
+          {(isLoading || jsonData) && <div className="flex-1 h-px bg-border" />}
 
           {isLoading && (
             <div className="flex items-center justify-center py-8">

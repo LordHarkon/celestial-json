@@ -28,6 +28,7 @@ export function FileSelector({ onFileSelect }: FileSelectorProps) {
           ))}
         </SelectContent>
       </Select>
+      <span className="text-xs text-muted-foreground">Note: These files are updated as of Jan 4, 2025.</span>
     </div>
   );
 }
