@@ -3,6 +3,6 @@ services:
     build:
       context: .
     ports:
-      - "32144:80"
+      - "${APP_PORT:-3000}:80"
     restart: unless-stopped
     pull_policy: build
