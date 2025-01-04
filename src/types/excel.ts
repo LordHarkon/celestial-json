@@ -2,9 +2,26 @@ export type Sheet = {
   name: string;
   headers: string[];
   data: Record<string, unknown>[];
-  renamedHeaders?: Record<string, string>;
 };
 
 export type ExcelFile = {
   sheets: Sheet[];
+};
+
+export type JsonData = {
+  sheetName: string;
+  data: Record<string, unknown>[];
+}[];
+
+export type HeaderType = "index" | "price" | "text";
+
+export type HeaderConfig = {
+  name: string;
+  type: HeaderType;
+  value?: string | number;
+};
+
+export type RollConfig = {
+  selectedSheets: Set<string>;
+  headers: HeaderConfig[];
 };
