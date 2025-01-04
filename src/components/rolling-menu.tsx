@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { JsonData, HeaderConfig, HeaderType, Settings } from "@/types/excel";
 import { RolledItemCard } from "./rolled-item-card";
-import { X } from "lucide-react";
+import { X, Ban } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type RollingMenuProps = {
@@ -60,18 +60,23 @@ export function RollingMenu({ jsonData, settings }: RollingMenuProps) {
             const value = item[config.name];
             if (typeof value != "number" && !value) return false;
 
+            let matches = false;
             switch (config.type) {
               case "index":
-                return parseInt(value as string, 10) === parseInt(config.value as string, 10);
+                matches = parseInt(value as string, 10) === parseInt(config.value as string, 10);
+                break;
               case "price": {
                 const itemPrice = parsePrice(value);
-                return itemPrice === parseInt(config.value as string, 10);
+                matches = itemPrice === parseInt(config.value as string, 10);
+                break;
               }
               case "text":
-                return String(value).toLowerCase().includes(String(config.value).toLowerCase());
+                matches = String(value).toLowerCase().includes(String(config.value).toLowerCase());
+                break;
               default:
-                return true;
+                matches = true;
             }
+            return config.inverse ? !matches : matches;
           });
         })
         .map((item) => ({ item, sheetName: sheet.sheetName })),
@@ -151,6 +156,24 @@ export function RollingMenu({ jsonData, settings }: RollingMenuProps) {
                     disabled={!config.type}
                     className="md:min-w-[140px] min-w-[100px]"
                   />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={config.inverse ? "secondary" : "ghost"}
+                          size="icon"
+                          onClick={() => updateHeaderConfig(index, "inverse", (!config.inverse).toString())}
+                          disabled={!config.type}
+                          className="min-w-9"
+                        >
+                          <Ban className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Invert filter (NOT)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <Button variant="ghost" size="icon" onClick={() => removeHeaderConfig(index)} className="min-w-9">
                     <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                   </Button>

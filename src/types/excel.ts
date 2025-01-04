@@ -19,6 +19,7 @@ export type HeaderConfig = {
   name: string;
   type?: HeaderType;
   value?: string | number;
+  inverse?: boolean;
 };
 
 export type RollConfig = {
