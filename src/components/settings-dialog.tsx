@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Settings2 } from "lucide-react";
+import { Settings as Settings2 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import type { JsonData, Settings } from "@/types/excel";
 import { Label } from "@/components/ui/label";
