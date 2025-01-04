@@ -22,13 +22,13 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
   });
 
   const addHeaderConfig = () => {
-    setHeaderConfigs([...headerConfigs, { name: "", type: "text" }]);
+    setHeaderConfigs([...headerConfigs, { name: "" }]);
   };
 
   const updateHeaderConfig = (index: number, field: keyof HeaderConfig, value: string) => {
     const newConfigs = [...headerConfigs];
     if (field === "type") {
-      newConfigs[index] = { ...newConfigs[index], [field]: value as HeaderType };
+      newConfigs[index] = { ...newConfigs[index], [field]: value as HeaderType, value: "" };
     } else {
       newConfigs[index] = { ...newConfigs[index], [field]: value };
     }
@@ -90,41 +90,49 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
 
       <div className="space-y-2">
         {headerConfigs.map((config, index) => (
-          <div key={index} className="flex gap-2">
-            <Select value={config.name} onValueChange={(value) => updateHeaderConfig(index, "name", value)}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select header" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from(allHeaders).map((header) => (
-                  <SelectItem key={header} value={header}>
-                    {header}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div key={index}>
+            <div className="flex flex-col gap-2 md:flex-row">
+              <Select value={config.name} onValueChange={(value) => updateHeaderConfig(index, "name", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select header" className="w-full" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from(allHeaders).map((header) => (
+                    <SelectItem key={header} value={header}>
+                      {header}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select value={config.type} onValueChange={(value) => updateHeaderConfig(index, "type", value)}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="index">Index</SelectItem>
-                <SelectItem value="price">Price</SelectItem>
-                <SelectItem value="text">Text</SelectItem>
-              </SelectContent>
-            </Select>
+              <div className="flex flex-col gap-2 md:flex-row">
+                <Select value={config.type} onValueChange={(value) => updateHeaderConfig(index, "type", value)}>
+                  <SelectTrigger className="md:min-w-[140px] min-w-[100px]">
+                    <SelectValue placeholder="Header type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="index">Index</SelectItem>
+                    <SelectItem value="price">Price</SelectItem>
+                    <SelectItem value="text">Text</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            <Input
-              placeholder="Value"
-              value={config.value || ""}
-              onChange={(e) => updateHeaderConfig(index, "value", e.target.value)}
-              className="w-[200px]"
-            />
-
-            <Button variant="ghost" size="icon" onClick={() => removeHeaderConfig(index)}>
-              <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-            </Button>
+                <div className="flex gap-2">
+                  <Input
+                    type={config.type === "text" ? "text" : "number"}
+                    placeholder="Value"
+                    value={config.value || ""}
+                    onChange={(e) => updateHeaderConfig(index, "value", e.target.value)}
+                    disabled={!config.type}
+                    className="md:min-w-[140px] min-w-[100px]"
+                  />
+                  <Button variant="ghost" size="icon" onClick={() => removeHeaderConfig(index)} className="min-w-9">
+                    <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {index < headerConfigs.length - 1 && <div className="h-px my-4 bg-border" />}
           </div>
         ))}
       </div>

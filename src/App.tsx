@@ -184,10 +184,10 @@ function App() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-b from-background to-muted">
-      <ThemeSwitcher />
-      <Card className="w-full max-w-2xl shadow-lg">
+    <div className="flex items-center justify-center min-h-screen p-2 sm:p-4 bg-gradient-to-b from-background to-muted">
+      <Card className="w-full max-w-2xl overflow-hidden shadow-lg">
         <CardHeader className="relative">
+          <ThemeSwitcher />
           {!isLoading && excelFile && (
             <div>
               {jsonData && <HeaderMappingDialog jsonData={jsonData} onUpdateHeaders={updateHeaders} />}
@@ -198,7 +198,7 @@ function App() {
                     <span className="sr-only">Configure Sheets</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-h-[80vh] overflow-y-auto custom-scrollbar">
+                <DialogContent className="max-h-[90vh] sm:max-h-[80vh] w-[95vw] sm:w-full overflow-y-auto custom-scrollbar">
                   <DialogHeader>
                     <DialogTitle>Select Sheets to Use</DialogTitle>
                     <DialogDescription>

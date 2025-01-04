@@ -18,6 +18,7 @@ type HeaderMappingDialogProps = {
 };
 
 export function HeaderMappingDialog({ jsonData, onUpdateHeaders }: HeaderMappingDialogProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [headerMappings, setHeaderMappings] = useState<Record<string, string>>({});
 
   // Get all unique headers
@@ -39,12 +40,13 @@ export function HeaderMappingDialog({ jsonData, onUpdateHeaders }: HeaderMapping
 
   const handleSave = () => {
     onUpdateHeaders(headerMappings);
+    setIsDialogOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" size="icon" className="absolute right-16 top-4">
+        <Button variant="default" size="icon" className="absolute right-14 md:right-16 top-4">
           <Settings className="w-4 h-4" />
           <span className="sr-only">Map Headers</span>
         </Button>
@@ -58,8 +60,8 @@ export function HeaderMappingDialog({ jsonData, onUpdateHeaders }: HeaderMapping
         </DialogHeader>
         <div className="py-4 space-y-4">
           {Array.from(allHeaders).map((header) => (
-            <div key={header} className="grid grid-cols-[1fr,auto,1fr] gap-4 items-center">
-              <div className="text-sm font-medium">{header}</div>
+            <div key={header} className="grid grid-cols-[1fr,auto,1fr] sm:gap-4 gap-2 items-center">
+              <div className="text-sm font-medium truncate">{header}</div>
               <span>→</span>
               <Input
                 value={headerMappings[header] || ""}

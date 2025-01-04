@@ -17,7 +17,7 @@ export type HeaderType = "index" | "price" | "text";
 
 export type HeaderConfig = {
   name: string;
-  type: HeaderType;
+  type?: HeaderType;
   value?: string | number;
 };
 
