@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Copy } from "lucide-react";
+import { Button } from "./ui/button";
 
 type RolledItemCardProps = {
   item: Record<string, unknown>;
@@ -8,6 +9,13 @@ type RolledItemCardProps = {
 
 export function RolledItemCard({ item, sheetName }: RolledItemCardProps) {
   const isError = "error" in item;
+
+  const handleCopy = () => {
+    const text = Object.entries(item)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+    navigator.clipboard.writeText(text);
+  };
 
   if (isError) {
     return (
@@ -22,8 +30,11 @@ export function RolledItemCard({ item, sheetName }: RolledItemCardProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">Rolled Item from {sheetName}</CardTitle>
+        <Button variant="outline" size="icon" onClick={handleCopy}>
+          <Copy className="w-4 h-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <dl className="space-y-4">
