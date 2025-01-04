@@ -283,8 +283,8 @@ function App() {
 
           <CardTitle className="text-2xl font-bold text-center">Celestial Roller</CardTitle>
           <CardDescription className="text-center">
-            A specialized tool for Celestial CYOA spreadsheets. Load Excel files and use the roller to randomly select
-            items based on filters. You can customize sheet names and standardize headers across sheets.
+            A specialized tool for Celestial spreadsheets. Load Excel files and use the roller to randomly select items
+            based on filters. You can customize sheet names and standardize headers across sheets.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
