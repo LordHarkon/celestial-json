@@ -137,7 +137,7 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
         ))}
       </div>
 
-      <Button onClick={handleRoll} className="w-full">
+      <Button onClick={handleRoll} variant="outline" className="w-full">
         🎲 Roll Item
       </Button>
 

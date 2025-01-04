@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Settings } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { JsonData } from "@/types/excel";
 
 type HeaderMappingDialogProps = {
@@ -22,21 +22,23 @@ export function HeaderMappingDialog({ jsonData, onUpdateHeaders }: HeaderMapping
   const [headerMappings, setHeaderMappings] = useState<Record<string, string>>({});
 
   // Get all unique headers
-  const allHeaders = new Set<string>();
-  jsonData.forEach((sheet) => {
-    if (sheet.data[0]) {
-      Object.keys(sheet.data[0]).forEach((header) => allHeaders.add(header));
-    }
-  });
+  const allHeaders = useMemo(() => {
+    const headers = new Set<string>();
+    jsonData.forEach((sheet) => {
+      if (sheet.data[0]) {
+        Object.keys(sheet.data[0]).forEach((header) => headers.add(header));
+      }
+    });
+    return headers;
+  }, [jsonData]);
 
   useEffect(() => {
-    // Initialize mappings with current headers
     const initialMappings: Record<string, string> = {};
     allHeaders.forEach((header) => {
       initialMappings[header] = header;
     });
     setHeaderMappings(initialMappings);
-  }, [jsonData]);
+  }, [jsonData, allHeaders]);
 
   const handleSave = () => {
     onUpdateHeaders(headerMappings);
@@ -46,7 +48,7 @@ export function HeaderMappingDialog({ jsonData, onUpdateHeaders }: HeaderMapping
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" size="icon" className="absolute right-14 md:right-16 top-4">
+        <Button variant="outline" size="icon" className="absolute right-14 md:right-16 top-2.5">
           <Settings className="w-4 h-4" />
           <span className="sr-only">Map Headers</span>
         </Button>
