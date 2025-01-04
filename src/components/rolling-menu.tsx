@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { JsonData, HeaderConfig, HeaderType, Settings } from "@/types/excel";
 import { RolledItemCard } from "./rolled-item-card";
 import { X } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type RollingMenuProps = {
   jsonData: JsonData;
@@ -40,7 +41,7 @@ export function RollingMenu({ jsonData, settings }: RollingMenuProps) {
     setHeaderConfigs(headerConfigs.filter((_, i) => i !== index));
   };
 
-  const handleRoll = () => {
+  const handleRoll = useCallback(() => {
     const filteredData = jsonData.flatMap((sheet) =>
       sheet.data
         .filter((item: Record<string, string | number | null>) => {
@@ -83,7 +84,7 @@ export function RollingMenu({ jsonData, settings }: RollingMenuProps) {
 
     const randomRoll = filteredData[Math.floor(Math.random() * filteredData.length)];
     setRolledItem(randomRoll);
-  };
+  }, [jsonData, headerConfigs]);
 
   const parsePrice = (price: string | number): number => {
     if (typeof price === "number") return price;
@@ -91,6 +92,17 @@ export function RollingMenu({ jsonData, settings }: RollingMenuProps) {
     const numMatch = price.match(/\d+/);
     return numMatch ? parseInt(numMatch[0], 10) : 0;
   };
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.shiftKey && e.key.toLowerCase() === "r") {
+        handleRoll();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [handleRoll]);
 
   return (
     <div className="space-y-4">
@@ -150,9 +162,18 @@ export function RollingMenu({ jsonData, settings }: RollingMenuProps) {
         ))}
       </div>
 
-      <Button onClick={handleRoll} variant="outline" className="w-full">
-        🎲 Roll Item
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={handleRoll} variant="outline" className="w-full">
+              🎲 Roll Item
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Press Shift+R to roll</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {rolledItem && (
         <RolledItemCard
