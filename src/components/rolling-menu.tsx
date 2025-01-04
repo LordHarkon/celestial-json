@@ -58,8 +58,6 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
             const value = item[config.name];
             if (typeof value != "number" && !value) return false;
 
-            console.log(config.name, config.type, config.value, value);
-
             switch (config.type) {
               case "index":
                 return parseInt(value as string, 10) === parseInt(config.value as string, 10);
