@@ -13,7 +13,7 @@ export function TutorialDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="absolute top-2.5 left-14 md:left-16">
+        <Button variant="outline" size="icon" className="absolute top-2.5 left-14">
           <HelpCircle className="w-4 h-4" />
           <span className="sr-only">Tutorial</span>
         </Button>
