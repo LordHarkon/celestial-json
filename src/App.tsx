@@ -137,7 +137,7 @@ function App() {
       .filter((sheet: Sheet) => selectedSheets.has(sheet.name))
       .map((sheet: Sheet) => ({
         sheetName: processSheetName(sheet.name),
-        data: sheet.data,
+        data: sheet.data as Record<string, string | number | null>[],
       }));
 
     if (selectedData.length === 0) return;
@@ -151,11 +151,11 @@ function App() {
     const updatedData = jsonData.map((sheet) => ({
       sheetName: sheet.sheetName,
       data: sheet.data.map((item) => {
-        const newItem: Record<string, unknown> = {};
+        const newItem: Record<string, string | number | null> = {};
         Object.entries(item).forEach(([key, value]) => {
           const newKey = mappings[key] || key;
           if (newItem[newKey] === undefined) {
-            newItem[newKey] = value;
+            newItem[newKey] = value as string | number | null;
           }
         });
         return newItem;
