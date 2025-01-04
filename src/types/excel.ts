@@ -10,7 +10,7 @@ export type ExcelFile = {
 
 export type JsonData = {
   sheetName: string;
-  data: Record<string, unknown>[];
+  data: Record<string, string | number | null>[];
 }[];
 
 export type HeaderType = "index" | "price" | "text";

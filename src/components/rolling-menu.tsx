@@ -28,7 +28,7 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
   const updateHeaderConfig = (index: number, field: keyof HeaderConfig, value: string) => {
     const newConfigs = [...headerConfigs];
     if (field === "type") {
-      newConfigs[index] = { ...newConfigs[index], [field]: value as HeaderType, value: "" };
+      newConfigs[index] = { ...newConfigs[index], [field]: value as HeaderType };
     } else {
       newConfigs[index] = { ...newConfigs[index], [field]: value };
     }
@@ -42,9 +42,9 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
   const handleRoll = () => {
     const filteredData = jsonData.flatMap((sheet) =>
       sheet.data
-        .filter((item) => {
+        .filter((item: Record<string, string | number | null>) => {
           // Check if item has more than just an ID or index
-          const hasContent = Object.entries(item).some(([key, value]) => {
+          const hasContent = Object.entries(item).some(([key, value]: [string, string | number | null]) => {
             if (!value) return false;
             // Skip if it's just an ID/index field
             if (key.toLowerCase().includes("id") || key === "0") return false;
@@ -54,16 +54,18 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
           if (!hasContent) return false;
 
           return headerConfigs.every((config) => {
-            if (!config.name || !config.type || !config.value) return true;
+            if (!config.name || !config.type || (typeof config.value != "number" && !config.value)) return true;
             const value = item[config.name];
-            if (!value) return false;
+            if (typeof value != "number" && !value) return false;
+
+            console.log(config.name, config.type, config.value, value);
 
             switch (config.type) {
               case "index":
-                return Number(value) === Number(config.value);
+                return parseInt(value as string, 10) === parseInt(config.value as string, 10);
               case "price": {
-                const itemPrice = parsePrice(String(value));
-                return itemPrice === Number(config.value);
+                const itemPrice = parsePrice(value);
+                return itemPrice === parseInt(config.value as string, 10);
               }
               case "text":
                 return String(value).toLowerCase().includes(String(config.value).toLowerCase());
@@ -84,10 +86,11 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
     setRolledItem(randomRoll);
   };
 
-  const parsePrice = (price: string): number => {
+  const parsePrice = (price: string | number): number => {
+    if (typeof price === "number") return price;
     if (price.toLowerCase() === "free") return 0;
     const numMatch = price.match(/\d+/);
-    return numMatch ? Number(numMatch[0]) : 0;
+    return numMatch ? parseInt(numMatch[0], 10) : 0;
   };
 
   return (
@@ -131,7 +134,7 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
                 <div className="flex gap-2">
                   <Input
                     type={config.type === "text" ? "text" : "number"}
-                    placeholder="Value"
+                    placeholder={config.type === "price" ? "Price" : "Value"}
                     value={config.value || ""}
                     onChange={(e) => updateHeaderConfig(index, "value", e.target.value)}
                     disabled={!config.type}
