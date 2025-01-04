@@ -44,8 +44,9 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
       sheet.data
         .filter((item) => {
           return headerConfigs.every((config) => {
+            if (!config.name || !config.type || !config.value) return true;
             const value = item[config.name];
-            if (!value || !config.value) return true;
+            if (!value) return false;
 
             switch (config.type) {
               case "index":
@@ -65,7 +66,7 @@ export function RollingMenu({ jsonData }: RollingMenuProps) {
     );
 
     if (filteredData.length === 0) {
-      setRolledItem(null);
+      setRolledItem({ item: { error: "No items found matching your filters." }, sheetName: "Error" });
       return;
     }
 

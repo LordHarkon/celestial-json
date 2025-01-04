@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
 type RolledItemCardProps = {
   item: Record<string, unknown>;
@@ -6,6 +7,19 @@ type RolledItemCardProps = {
 };
 
 export function RolledItemCard({ item, sheetName }: RolledItemCardProps) {
+  const isError = "error" in item;
+
+  if (isError) {
+    return (
+      <Card className="border-destructive">
+        <CardHeader className="flex flex-row items-center gap-2 text-destructive">
+          <AlertCircle className="w-5 h-5" />
+          <CardTitle className="text-lg">{String(item.error)}</CardTitle>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
