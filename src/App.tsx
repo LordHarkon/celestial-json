@@ -198,10 +198,10 @@ function App() {
                     <span className="sr-only">Configure Sheets</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-h-[90vh] sm:max-h-[80vh] w-[95vw] sm:w-full overflow-y-auto custom-scrollbar">
+                <DialogContent className="max-h-[98vh] sm:max-h-[80vh] w-[96vw] sm:w-full flex flex-col">
                   <DialogHeader>
                     <DialogTitle>Select Sheets to Use</DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-left">
                       Choose the sheets you want to convert and use the roller.
                       <br />
                       <span className="underline">Select only the sheets containing perks</span> (they usually start
@@ -214,11 +214,11 @@ function App() {
                       <span className="font-bold">0, CP Cost, Name, Jumpdoc, Chapter, Description</span>
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="pt-4 space-y-4">
-                    <Button variant="outline" className="w-full" onClick={toggleAllSheets}>
-                      {selectedSheets.size === excelFile?.sheets.length ? "Deselect All" : "Select All"}
-                    </Button>
-                    <div className="space-y-2">
+                  <Button variant="outline" className="w-full" onClick={toggleAllSheets}>
+                    {selectedSheets.size === excelFile?.sheets.length ? "Deselect All" : "Select All"}
+                  </Button>
+                  <div className="flex-1 p-1 overflow-y-auto border rounded-lg custom-scrollbar border-border">
+                    <div className="pr-2 space-y-2">
                       {excelFile?.sheets.map((sheet: Sheet) => (
                         <div key={sheet.name} className="border rounded-lg bg-card">
                           <div
@@ -272,7 +272,12 @@ function App() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button onClick={handleLoadJson} className="w-full" disabled={selectedSheets.size === 0}>
+                    <Button
+                      onClick={handleLoadJson}
+                      className="w-full"
+                      variant="outline"
+                      disabled={selectedSheets.size === 0}
+                    >
                       Load Selected Sheets
                     </Button>
                   </DialogFooter>
