@@ -26,6 +26,7 @@ export function TutorialDialog() {
               <h3 className="mb-2 font-semibold underline">1. Loading Data</h3>
               <p>• Select from pre-loaded Celestial documents or upload your own Excel file</p>
               <p>• Only .xlsx and .xls files are supported</p>
+              <p>• You can import/export your state to save your settings and kept perks</p>
             </div>
 
             <div>
@@ -38,10 +39,9 @@ export function TutorialDialog() {
             <div>
               <h3 className="mb-2 font-semibold underline">3. Header Management</h3>
               <p>• Use the settings icon to standardize headers across sheets</p>
-              <p>
-                • Similar headers can be merged by giving them the same name (just keep in mind that you will not be
-                able to split them back, unless you upload the file again)
-              </p>
+              <p>• Similar headers can be merged by giving them the same name</p>
+              <p>• Headers can be hidden from the rolled items view</p>
+              <p>• Header order is preserved when importing/exporting state</p>
             </div>
 
             <div>
@@ -54,7 +54,16 @@ export function TutorialDialog() {
                 <li>Price: Matches CP cost (handles "Free" as 0)</li>
               </ul>
               <p>• Click "Roll Perk" to randomly select a perk matching your filters</p>
-              <p>• You can also use the shortcut "Shift + R" to roll</p>
+              <p>• Use the shortcut "Shift + R" to roll</p>
+              <p>• Keep perks you like by clicking "Keep" and view them in your build</p>
+            </div>
+
+            <div>
+              <h3 className="mb-2 font-semibold underline">5. Managing Your Build</h3>
+              <p>• Click the "Build" button to view your kept perks</p>
+              <p>• Expand perks to see all their details</p>
+              <p>• Remove perks you no longer want</p>
+              <p>• Export your build to save it for later</p>
             </div>
           </DialogDescription>
         </DialogHeader>
