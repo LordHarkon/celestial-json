@@ -45,7 +45,7 @@ export function TutorialDialog() {
             </div>
 
             <div>
-              <h3 className="mb-2 font-semibold underline">4. Rolling Items</h3>
+              <h3 className="mb-2 font-semibold underline">4. Rolling Perks</h3>
               <p>• Add filters to narrow down your roll results</p>
               <p>• Filter types:</p>
               <ul className="pl-4 list-disc list-inside">
@@ -53,7 +53,8 @@ export function TutorialDialog() {
                 <li>Index: Matches exact numbers</li>
                 <li>Price: Matches CP cost (handles "Free" as 0)</li>
               </ul>
-              <p>• Click "Roll Item" to randomly select an item matching your filters</p>
+              <p>• Click "Roll Perk" to randomly select a perk matching your filters</p>
+              <p>• You can also use the shortcut "Shift + R" to roll</p>
             </div>
           </DialogDescription>
         </DialogHeader>

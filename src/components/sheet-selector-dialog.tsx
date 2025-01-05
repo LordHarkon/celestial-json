@@ -83,7 +83,9 @@ export function SheetSelectorDialog({
                   />
                   <div className="flex-1 grid gap-1.5">
                     <label className="text-sm font-medium leading-none">{sheet.name}</label>
-                    <p className="text-sm text-muted-foreground">Headers: {sheet.headers.join(", ")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Headers: {sheet.headers.map((header) => header.name).join(", ")}
+                    </p>
                   </div>
                   {selectedSheets.has(sheet.name) && (
                     <Button

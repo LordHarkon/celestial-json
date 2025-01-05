@@ -10,52 +10,91 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Settings as Settings2 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import type { JsonData, Settings } from "@/types/excel";
+import type { Header, HeaderChange, JsonData, Settings } from "@/types/excel";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { generateId } from "@/lib/generator";
 
 type HeaderMappingDialogProps = {
   jsonData: JsonData;
+  settings: Settings;
   onUpdateHeaders: (settings: Settings) => void;
 };
 
-export function SettingsDialog({ jsonData, onUpdateHeaders }: HeaderMappingDialogProps) {
+export function SettingsDialog({ jsonData, settings, onUpdateHeaders }: HeaderMappingDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [headerMappings, setHeaderMappings] = useState<Record<string, string>>({});
-  const [hiddenHeaders, setHiddenHeaders] = useState<string[]>([]);
+  const [headerMappings, setHeaderMappings] = useState<Record<string, { to: string; order: number }>>(
+    settings?.mappings ?? {},
+  );
+  const [hiddenHeaders, setHiddenHeaders] = useState<string[]>(settings?.hiddenHeaders ?? ["_id"]);
 
-  // Get all unique headers
+  // Get all unique headers with their IDs
   const allHeaders = useMemo(() => {
-    const headers = new Set<string>();
+    const headers = new Map<string, Header>();
     jsonData.forEach((sheet) => {
       if (sheet.data[0]) {
-        Object.keys(sheet.data[0]).forEach((header) => headers.add(header));
+        const sheetHeaders = Object.keys(sheet.data[0])
+          .filter((header) => header !== "_id")
+          .map((header, index) => ({
+            _id: generateId(),
+            name: header,
+            order: index,
+          }));
+
+        sheetHeaders.forEach((header) => {
+          if (!headers.has(header.name)) {
+            headers.set(header.name, header);
+          }
+        });
       }
     });
-    return headers;
+    return Array.from(headers.values());
   }, [jsonData]);
 
   useEffect(() => {
-    const initialMappings: Record<string, string> = {};
+    const initialMappings: Record<string, { to: string; order: number }> = { ...settings?.mappings };
     allHeaders.forEach((header) => {
-      initialMappings[header] = header;
+      initialMappings[header.name] = { to: header.name, order: header.order };
     });
     setHeaderMappings(initialMappings);
+    setHiddenHeaders(settings?.hiddenHeaders ?? ["_id"]);
   }, [jsonData, allHeaders]);
 
   const handleSave = () => {
-    // Update hidden headers to match new header names
-    const updatedHiddenHeaders = hiddenHeaders
-      .map((header) => headerMappings[header] || header)
-      .filter((header) => Object.values(headerMappings).includes(header));
+    const existingChanges = new Map(settings.headerChanges.map((change) => [`${change.from}-${change.to}`, change]));
 
-    // Remove duplicates
-    const uniqueHiddenHeaders = [...new Set(updatedHiddenHeaders)];
+    // Create ordered mappings
+    const orderedMappings = Array.from(allHeaders)
+      .sort((a, b) => a.order - b.order)
+      .reduce((acc, header) => {
+        acc[header.name] = {
+          to: headerMappings[header.name]?.to || header.name,
+          order: header.order,
+        };
+        return acc;
+      }, {} as Record<string, { to: string; order: number }>);
+
+    const headerChanges = Object.entries(headerMappings)
+      .filter(([from, to]) => from !== to.to)
+      .map(([from, to]) => {
+        const key = `${from}-${to.to}`;
+        if (existingChanges.has(key)) {
+          return existingChanges.get(key)!;
+        }
+        const header = allHeaders.find((h) => h.name === from);
+        return {
+          id: header?._id || generateId(),
+          from,
+          to: to.to,
+          timestamp: Date.now(),
+        };
+      });
 
     onUpdateHeaders({
-      mappings: headerMappings,
-      hiddenHeaders: uniqueHiddenHeaders,
+      mappings: orderedMappings,
+      hiddenHeaders,
+      headerChanges: headerChanges as HeaderChange[],
     });
     setIsDialogOpen(false);
   };
@@ -77,17 +116,24 @@ export function SettingsDialog({ jsonData, onUpdateHeaders }: HeaderMappingDialo
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-4">
-            {Array.from(allHeaders).map((header) => (
-              <div key={header} className="grid grid-cols-[1fr,auto,1fr] sm:gap-4 gap-2 items-center">
-                <div className="text-sm font-medium truncate">{header}</div>
-                <span>→</span>
-                <Input
-                  value={headerMappings[header] || ""}
-                  onChange={(e) => setHeaderMappings({ ...headerMappings, [header]: e.target.value })}
-                  className="h-8"
-                />
-              </div>
-            ))}
+            {Array.from(allHeaders)
+              .sort((a, b) => a.order - b.order)
+              .map((header) => (
+                <div key={header.name} className="grid grid-cols-[1fr,auto,1fr] sm:gap-4 gap-2 items-center">
+                  <div className="text-sm font-medium truncate">{header.name}</div>
+                  <span>→</span>
+                  <Input
+                    value={headerMappings[header.name]?.to || ""}
+                    onChange={(e) =>
+                      setHeaderMappings({
+                        ...headerMappings,
+                        [header.name]: { to: e.target.value, order: header.order },
+                      })
+                    }
+                    className="h-8"
+                  />
+                </div>
+              ))}
           </div>
           <Separator />
           <div className="space-y-4">
@@ -96,19 +142,19 @@ export function SettingsDialog({ jsonData, onUpdateHeaders }: HeaderMappingDialo
               <p className="text-sm text-muted-foreground">Hide headers that you don't want to see in rolled items.</p>
             </div>
             {Array.from(allHeaders).map((header) => (
-              <div key={header} className="flex items-center gap-2">
+              <div key={header.name} className="flex items-center gap-2">
                 <Checkbox
-                  id={`visible-${header}`}
-                  checked={!hiddenHeaders.includes(header)}
+                  id={`visible-${header.name}`}
+                  checked={!hiddenHeaders.includes(header.name)}
                   onCheckedChange={(checked) => {
                     if (checked) {
-                      setHiddenHeaders(hiddenHeaders.filter((h) => h !== header));
+                      setHiddenHeaders(hiddenHeaders.filter((h) => h !== header.name));
                     } else {
-                      setHiddenHeaders([...hiddenHeaders, header]);
+                      setHiddenHeaders([...hiddenHeaders, header.name]);
                     }
                   }}
                 />
-                <Label htmlFor={`visible-${header}`}>{headerMappings[header] || header}</Label>
+                <Label htmlFor={`visible-${header.name}`}>{headerMappings[header.name]?.to || header.name}</Label>
               </div>
             ))}
           </div>

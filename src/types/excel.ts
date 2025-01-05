@@ -1,6 +1,12 @@
+export type Header = {
+  _id: string;
+  name: string;
+  order: number;
+};
+
 export type Sheet = {
   name: string;
-  headers: string[];
+  headers: Header[];
   data: Record<string, unknown>[];
 };
 
@@ -27,7 +33,15 @@ export type RollConfig = {
   headers: HeaderConfig[];
 };
 
+export type HeaderChange = {
+  id: string;
+  from: string;
+  to: string;
+  timestamp: number;
+};
+
 export type Settings = {
-  mappings: Record<string, string>;
+  mappings: Record<string, { to: string; order: number }>;
   hiddenHeaders: string[];
+  headerChanges: HeaderChange[];
 };

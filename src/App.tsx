@@ -2,14 +2,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Info } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import type { ExcelFile, Sheet, JsonData, Settings } from "@/types/excel";
-import { RollingMenu } from "@/components/rolling-menu";
+import type { ExcelFile, Sheet, JsonData, Settings, HeaderChange, Header } from "@/types/excel";
+import { RollingMenu, RollingMenuRef } from "@/components/rolling-menu";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { FileSelector } from "@/components/file-selector";
 import { TutorialDialog } from "@/components/tutorial-dialog";
 import { SheetSelectorDialog } from "@/components/sheet-selector-dialog";
+import { Button } from "@/components/ui/button";
+import { generateId } from "@/lib/generator";
+import { KeptItemsDialog } from "@/components/kept-items-dialog";
 
 function App() {
   const [excelFile, setExcelFile] = useState<ExcelFile | null>(null);
@@ -18,7 +21,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [jsonData, setJsonData] = useState<JsonData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [settings, setSettings] = useState<Settings>({ mappings: {}, hiddenHeaders: [] });
+  const [settings, setSettings] = useState<Settings>({
+    mappings: {},
+    hiddenHeaders: ["_id"],
+    headerChanges: [],
+  });
+  const [keptItems, setKeptItems] = useState<Array<{ item: Record<string, unknown>; sheetName: string }>>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const rollingMenuRef = useRef<RollingMenuRef>(null);
 
   const resetStates = () => {
     setSelectedSheets(new Set());
@@ -37,6 +47,15 @@ function App() {
     return name.replace(/Chapter \d+:?\s*(?=\S)/, "").trim();
   };
 
+  const processHeaders = (jsonData: Record<string, unknown>[]) => {
+    if (!jsonData[0]) return [];
+    return Object.keys(jsonData[0]).map((header, index) => ({
+      _id: generateId(),
+      name: header,
+      order: index,
+    }));
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -52,12 +71,18 @@ function App() {
         const sheets: Sheet[] = workbook.SheetNames.map((sheetName) => {
           const worksheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
-          const headers = Object.keys(jsonData[0] || {});
+          const headers: Header[] = [...processHeaders(jsonData)];
+          headers.push({ _id: "_id", name: "_id", order: headers.length });
+
+          const dataWithIds = jsonData.map((item) => ({
+            ...item,
+            _id: generateId(),
+          }));
 
           return {
             name: sheetName,
-            headers,
-            data: jsonData,
+            headers: headers,
+            data: dataWithIds,
           };
         });
 
@@ -90,12 +115,18 @@ function App() {
       const sheets: Sheet[] = workbook.SheetNames.map((sheetName) => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
-        const headers = Object.keys(jsonData[0] || {});
+        const headers: Header[] = [...processHeaders(jsonData)];
+        headers.push({ _id: "_id", name: "_id", order: headers.length });
+
+        const dataWithIds = jsonData.map((item) => ({
+          ...item,
+          _id: generateId(),
+        }));
 
         return {
           name: sheetName,
-          headers,
-          data: jsonData,
+          headers: headers,
+          data: dataWithIds,
         };
       });
 
@@ -154,12 +185,14 @@ function App() {
       sheetName: sheet.sheetName,
       data: sheet.data.map((item) => {
         const newItem: Record<string, string | number | null> = {};
+
         Object.entries(item).forEach(([key, value]) => {
-          const newKey = newSettings.mappings[key] || key;
+          const newKey = newSettings.mappings[key]?.to || key;
           if (newItem[newKey] === undefined) {
             newItem[newKey] = value as string | number | null;
           }
         });
+
         return newItem;
       }),
     }));
@@ -176,6 +209,115 @@ function App() {
     }
   };
 
+  const addKeptItem = (item: { item: Record<string, unknown>; sheetName: string }) => {
+    setKeptItems([...keptItems, item]);
+  };
+
+  const removeKeptItem = (id: string) => {
+    setKeptItems(keptItems.filter((item) => (item.item._id as string) !== id));
+  };
+
+  const exportState = () => {
+    const state = {
+      selectedSheets: Array.from(selectedSheets),
+      settings,
+      keptItems,
+      headerConfigs: rollingMenuRef.current?.getHeaderConfigs() || [],
+      excelFile,
+    };
+
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "celestial-roller-state.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const importState = async (file: File) => {
+    const text = await file.text();
+    const state = JSON.parse(text);
+
+    setSelectedSheets(new Set(state.selectedSheets));
+    setSettings({
+      ...state.settings,
+      mappings: Object.entries(state.settings.mappings)
+        .sort(([, a], [, b]) => (a as { order: number }).order - (b as { order: number }).order)
+        .reduce((acc, [key, value]) => {
+          acc[key] = value as { to: string; order: number };
+          return acc;
+        }, {} as Record<string, { to: string; order: number }>),
+    });
+    setKeptItems(state.keptItems);
+    rollingMenuRef.current?.setHeaderConfigs(state.headerConfigs);
+
+    if (state.excelFile) {
+      setExcelFile(state.excelFile);
+
+      // Recalculate jsonData from excelFile and selectedSheets
+      const selectedData = state.excelFile.sheets
+        .filter((sheet: Sheet) => state.selectedSheets.includes(sheet.name))
+        .map((sheet: Sheet) => ({
+          sheetName: processSheetName(sheet.name),
+          data: sheet.data.map((item: Record<string, unknown>) => {
+            const newItem = { ...item };
+
+            // Group changes by 'to' field to handle multiple headers mapping to same target
+            const changesByTarget: Record<string, HeaderChange[]> = {};
+            state.settings.headerChanges.forEach((change: HeaderChange) => {
+              if (!changesByTarget[change.to]) {
+                changesByTarget[change.to] = [];
+              }
+              changesByTarget[change.to].push(change);
+            });
+
+            // Apply changes, handling multiple sources for same target
+            Object.entries(changesByTarget).forEach(([, changes]) => {
+              // Sort changes by timestamp to get latest changes first
+              changes.sort((a, b) => b.timestamp - a.timestamp);
+
+              // Find first matching source header that exists in the item
+              const matchingChange = changes.find((change) => newItem[change.from] !== undefined);
+              if (matchingChange) {
+                newItem[matchingChange.to] = newItem[matchingChange.from];
+                // Remove the source field if it's different from target
+                if (matchingChange.from !== matchingChange.to) {
+                  delete newItem[matchingChange.from];
+                }
+              }
+            });
+
+            // Sort headers based on mappings order
+            const orderedItem: Record<string, unknown> = {};
+            Object.entries(state.settings.mappings)
+              .sort(([, a], [, b]) => (a as { order: number }).order - (b as { order: number }).order)
+              .forEach(([, mapping]) => {
+                if (newItem[(mapping as { to: string }).to] !== undefined) {
+                  orderedItem[(mapping as { to: string }).to] = newItem[(mapping as { to: string }).to];
+                }
+              });
+
+            // Add any remaining unmapped fields
+            Object.entries(newItem).forEach(([key, value]) => {
+              if (orderedItem[key] === undefined) {
+                orderedItem[key] = value;
+              }
+            });
+
+            return orderedItem;
+          }),
+        }));
+
+      if (selectedData.length > 0) {
+        setJsonData(selectedData);
+        setIsDialogOpen(false);
+      }
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen p-2 sm:p-4 bg-gradient-to-b from-background to-muted">
       <Card className="w-full max-w-2xl overflow-hidden shadow-lg">
@@ -184,7 +326,7 @@ function App() {
           <TutorialDialog />
           {!isLoading && excelFile && (
             <>
-              {jsonData && <SettingsDialog jsonData={jsonData} onUpdateHeaders={updateHeaders} />}
+              {jsonData && <SettingsDialog jsonData={jsonData} settings={settings} onUpdateHeaders={updateHeaders} />}
               <SheetSelectorDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
@@ -208,6 +350,28 @@ function App() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="flex gap-2">
+            <Input
+              type="file"
+              accept=".json"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={(e) => e.target.files?.[0] && importState(e.target.files[0])}
+            />
+            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+              Import State
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportState}>
+              Export State
+            </Button>
+            {keptItems.length > 0 && (
+              <KeptItemsDialog
+                items={keptItems}
+                hiddenHeaders={new Set(settings.hiddenHeaders)}
+                onRemove={removeKeptItem}
+              />
+            )}
+          </div>
           <div className="grid items-center w-full gap-4">
             <FileSelector onFileSelect={handlePreloadedFile} />
             <div className="flex items-center gap-2">
@@ -238,13 +402,13 @@ function App() {
 
           {jsonData && (
             <div className="space-y-4">
-              <RollingMenu jsonData={jsonData} settings={settings} />
-              {/* <div className="p-4 border rounded-lg">
-                <h3 className="mb-2 font-medium">Loaded JSON Data</h3>
-                <pre className="p-4 rounded bg-muted overflow-auto max-h-[400px] custom-scrollbar">
-                  {JSON.stringify(jsonData, null, 2)}
-                </pre>
-              </div> */}
+              <RollingMenu
+                ref={rollingMenuRef}
+                jsonData={jsonData}
+                settings={settings}
+                onKeepItem={addKeptItem}
+                keptItems={keptItems}
+              />
             </div>
           )}
         </CardContent>
