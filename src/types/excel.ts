@@ -21,11 +21,14 @@ export type JsonData = {
 
 export type HeaderType = "index" | "price" | "text";
 
+export type ComparisonType = "lt" | "lte" | "eq" | "gt" | "gte";
+
 export type HeaderConfig = {
   name: string;
   type?: HeaderType;
   value?: string | number;
   inverse?: boolean;
+  comparison?: ComparisonType;
 };
 
 export type RollConfig = {

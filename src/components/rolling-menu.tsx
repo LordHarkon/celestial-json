@@ -74,11 +74,27 @@ export const RollingMenu = forwardRef<RollingMenuRef, RollingMenuProps>(
               let matches = false;
               switch (config.type) {
                 case "index":
-                  matches = parseInt(value as string, 10) === parseInt(config.value as string, 10);
-                  break;
                 case "price": {
-                  const itemPrice = parsePrice(value);
-                  matches = itemPrice === parseInt(config.value as string, 10);
+                  const itemValue = config.type === "price" ? parsePrice(value) : parseInt(value as string, 10);
+                  const compareValue = parseInt(config.value as string, 10);
+
+                  switch (config.comparison || "eq") {
+                    case "lt":
+                      matches = itemValue < compareValue;
+                      break;
+                    case "lte":
+                      matches = itemValue <= compareValue;
+                      break;
+                    case "eq":
+                      matches = itemValue === compareValue;
+                      break;
+                    case "gt":
+                      matches = itemValue > compareValue;
+                      break;
+                    case "gte":
+                      matches = itemValue >= compareValue;
+                      break;
+                  }
                   break;
                 }
                 case "text":
@@ -153,7 +169,7 @@ export const RollingMenu = forwardRef<RollingMenuRef, RollingMenuProps>(
 
                 <div className="flex flex-col gap-2 md:flex-row">
                   <Select value={config.type} onValueChange={(value) => updateHeaderConfig(index, "type", value)}>
-                    <SelectTrigger className="md:min-w-[140px] min-w-[100px]">
+                    <SelectTrigger className="md:min-w-[100px] min-w-[100px]">
                       <SelectValue placeholder="Header type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -162,6 +178,24 @@ export const RollingMenu = forwardRef<RollingMenuRef, RollingMenuProps>(
                       <SelectItem value="text">Text</SelectItem>
                     </SelectContent>
                   </Select>
+
+                  {(config.type === "index" || config.type === "price") && (
+                    <Select
+                      value={config.comparison || "eq"}
+                      onValueChange={(value) => updateHeaderConfig(index, "comparison", value)}
+                    >
+                      <SelectTrigger className="md:min-w-[120px] min-w-[100px]">
+                        <SelectValue placeholder="Comparison" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="lt">Less than (&lt;)</SelectItem>
+                        <SelectItem value="lte">Less than or equal (&lt;=)</SelectItem>
+                        <SelectItem value="eq">Equal to (=)</SelectItem>
+                        <SelectItem value="gt">Greater than (&gt;)</SelectItem>
+                        <SelectItem value="gte">Greater than or equal (&gt;=)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
 
                   <div className="flex gap-2">
                     <Input
