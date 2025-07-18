@@ -45,7 +45,7 @@ function App() {
           <CardDescription className="text-center">
             {activeTab === "celestial"
               ? "A specialized tool for Celestial spreadsheets. Load Excel files and use the roller to randomly select items based on filters. You can customize sheet names and standardize headers across sheets."
-              : "Create and manage Choose Your Own Adventure stories with branching paths and decision points."}
+              : "Load CYOA JSON files and roll options based on your filters."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
