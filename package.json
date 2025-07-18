@@ -1,8 +1,24 @@
 {
-  "name": "celestial-json",
+  "name": "celestial-cyoa-roller",
+  "description": "A comprehensive rolling tool for Celestial spreadsheets and CYOA JSON files with advanced filtering, multi-item rolling, and collection management",
+  "version": "1.0.0",
+  "author": "Hooshu",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "keywords": [
+    "celestial",
+    "cyoa",
+    "roller",
+    "random",
+    "generator",
+    "excel",
+    "spreadsheet",
+    "json",
+    "character-builder",
+    "perks",
+    "items",
+    "filters"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -18,7 +34,6 @@
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.1.6",
-    "@tailwindcss/line-clamp": "^0.4.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
@@ -30,6 +45,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
