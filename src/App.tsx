@@ -40,7 +40,7 @@ function App() {
           </div>
 
           <CardTitle className="pt-8 text-2xl font-bold text-center">
-            {activeTab === "celestial" ? "Celestial Roller" : "CYOA Builder"}
+            {activeTab === "celestial" ? "Celestial Roller" : "CYOA Roller"}
           </CardTitle>
           <CardDescription className="text-center">
             {activeTab === "celestial"

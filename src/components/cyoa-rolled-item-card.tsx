@@ -44,13 +44,15 @@ export function CyoaRolledItemCard({
   };
 
   return (
-    <Card className={`transition-all ${isKept ? "bg-green-50 border-green-500" : ""}`}>
+    <Card className={`transition-all ${isKept ? "bg-green-900 border-green-500" : ""}`}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <CardTitle className="text-lg">{item.title}</CardTitle>
             <CardDescription className="flex gap-2 items-center">
-              <Badge variant="outline">{rowName}</Badge>
+              <Badge variant="secondary" className="bg-black border border-white/10">
+                {rowName}
+              </Badge>
               {isKept && (
                 <Badge variant="default" className="bg-green-500">
                   Kept
@@ -66,7 +68,13 @@ export function CyoaRolledItemCard({
               </Button>
             )}
             {onRollAgain && (
-              <Button variant="outline" size="sm" onClick={onRollAgain} className="flex gap-1 items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRollAgain}
+                disabled={isKept}
+                className="flex gap-1 items-center"
+              >
                 <RotateCcw className="w-4 h-4" />
                 Roll Again
               </Button>

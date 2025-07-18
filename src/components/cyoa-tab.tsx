@@ -18,7 +18,8 @@ import type {
 import { generateId } from "@/lib/generator";
 import { CyoaRowSelectorDialog } from "@/components/cyoa-row-selector-dialog";
 import { CyoaRollingMenu, CyoaRollingMenuRef } from "@/components/cyoa-rolling-menu";
-import { KeptItemsDialog } from "@/components/kept-items-dialog";
+import { CyoaTutorialDialog } from "@/components/cyoa-tutorial-dialog";
+import { CyoaKeptItemsDialog } from "@/components/cyoa-kept-items-dialog";
 
 const PREDEFINED_CYOAS: PredefinedCyoa[] = [
   {
@@ -260,16 +261,8 @@ export function CyoaTab() {
         <Button variant="outline" size="sm" onClick={exportState}>
           Export State
         </Button>
-        {keptItems.length > 0 && (
-          <KeptItemsDialog
-            items={keptItems.map((item) => ({
-              item: item.item as unknown as Record<string, unknown>,
-              sheetName: item.rowName,
-            }))}
-            hiddenHeaders={new Set()}
-            onRemove={removeKeptItem}
-          />
-        )}
+        <CyoaTutorialDialog />
+        <CyoaKeptItemsDialog items={keptItems} onRemove={removeKeptItem} />
       </div>
 
       <div className="grid gap-4 items-center w-full">
