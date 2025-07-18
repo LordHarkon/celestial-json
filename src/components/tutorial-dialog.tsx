@@ -13,9 +13,9 @@ export function TutorialDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="absolute top-2.5 left-14">
+        <Button variant="outline" size="sm">
           <HelpCircle className="w-4 h-4" />
-          <span className="sr-only">Tutorial</span>
+          Tutorial
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto custom-scrollbar">
