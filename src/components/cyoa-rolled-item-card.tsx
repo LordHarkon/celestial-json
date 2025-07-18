@@ -98,7 +98,7 @@ export function CyoaRolledItemCard({
               {item.addons.map((addon) => (
                 <div key={addon.id} className="pl-4 border-l-2 border-gray-200">
                   <h5 className="text-sm font-medium">{addon.title}</h5>
-                  {addon.text && <p className="mt-1 text-xs text-gray-600">{addon.text}</p>}
+                  {addon.text && <p className="mt-1 text-xs text-gray-400">{addon.text}</p>}
                   {renderImage(addon.image, addon.imageIsURL, addon.imageLink)}
                 </div>
               ))}
