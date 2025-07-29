@@ -118,7 +118,7 @@ export const CyoaRollingMenu = forwardRef<CyoaRollingMenuRef, CyoaRollingMenuPro
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-48 justify-between">
+              <Button variant="outline" className="justify-between w-48">
                 <span className="truncate">
                   {filterByRows.size === 0
                     ? "All rows"
@@ -126,14 +126,14 @@ export const CyoaRollingMenu = forwardRef<CyoaRollingMenuRef, CyoaRollingMenuPro
                     ? Array.from(filterByRows)[0]
                     : `${filterByRows.size} rows selected`}
                 </span>
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48">
+            <DropdownMenuContent className="w-48 max-h-64 overflow-y-auto custom-scrollbar">
               <DropdownMenuItem
                 onClick={() => setFilterByRows(new Set())}
                 onSelect={(e) => e.preventDefault()}
-                className="flex items-center gap-2"
+                className="flex gap-2 items-center"
               >
                 <Checkbox checked={filterByRows.size === 0} />
                 All rows
@@ -151,7 +151,7 @@ export const CyoaRollingMenu = forwardRef<CyoaRollingMenuRef, CyoaRollingMenuPro
                     setFilterByRows(newFilter);
                   }}
                   onSelect={(e) => e.preventDefault()}
-                  className="flex items-center gap-2"
+                  className="flex gap-2 items-center"
                 >
                   <Checkbox checked={filterByRows.has(rowName)} />
                   <span className="truncate">{rowName}</span>
