@@ -60,6 +60,15 @@ export function CyoaTab() {
   };
 
   const simplifyFullCyoa = (fullCyoa: FullCyoa): SimplifiedCyoa => {
+    const pointTypes =
+      fullCyoa.pointTypes?.map((pt) => ({
+        id: pt.id,
+        name: pt.name,
+        beforeText: pt.beforeText,
+        afterText: pt.afterText,
+        startingSum: pt.startingSum,
+      })) || [];
+
     const simplifiedRows: SimplifiedRow[] =
       fullCyoa.rows?.map((row: FullRow) => ({
         id: row.id || generateId(),
@@ -76,6 +85,46 @@ export function CyoaTab() {
             image: obj.image,
             imageIsURL: obj.imageIsURL,
             imageLink: obj.imageLink,
+            scores:
+              obj.scores?.map((score) => {
+                const pointType = pointTypes.find((pt) => pt.id === score.id);
+                return {
+                  id: score.id,
+                  value: score.value,
+                  beforeText: score.beforeText || pointType?.beforeText || "",
+                  afterText: score.afterText || pointType?.afterText || "",
+                  requireds:
+                    score.requireds?.map((req) => ({
+                      id: req.id,
+                      type: req.type || "id",
+                      reqId: req.reqId,
+                      reqId1: req.reqId1,
+                      reqId2: req.reqId2,
+                      reqId3: req.reqId3,
+                      required: req.required,
+                      beforeText: req.beforeText,
+                      afterText: req.afterText,
+                      reqPoints: req.reqPoints,
+                      operator: req.operator,
+                      orRequired: req.orRequired,
+                    })) || [],
+                };
+              }) || [],
+            requireds:
+              obj.requireds?.map((req) => ({
+                id: req.id,
+                type: req.type || "id",
+                reqId: req.reqId,
+                reqId1: req.reqId1,
+                reqId2: req.reqId2,
+                reqId3: req.reqId3,
+                required: req.required,
+                beforeText: req.beforeText,
+                afterText: req.afterText,
+                reqPoints: req.reqPoints,
+                operator: req.operator,
+                orRequired: req.orRequired,
+              })) || [],
             addons: obj.addons?.map((addon: FullAddon) => ({
               id: addon.id || generateId(),
               title: addon.title || "Untitled Addon",
@@ -83,11 +132,26 @@ export function CyoaTab() {
               image: addon.image,
               imageIsURL: addon.imageIsURL,
               imageLink: addon.imageLink,
+              requireds:
+                addon.requireds?.map((req) => ({
+                  id: req.id,
+                  type: req.type || "id",
+                  reqId: req.reqId,
+                  reqId1: req.reqId1,
+                  reqId2: req.reqId2,
+                  reqId3: req.reqId3,
+                  required: req.required,
+                  beforeText: req.beforeText,
+                  afterText: req.afterText,
+                  reqPoints: req.reqPoints,
+                  operator: req.operator,
+                  orRequired: req.orRequired,
+                })) || [],
             })),
           })) || [],
       })) || [];
 
-    return { rows: simplifiedRows };
+    return { rows: simplifiedRows, pointTypes };
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +217,7 @@ export function CyoaTab() {
     if (!cyoaFile) return;
 
     setCyoaFile({
+      ...cyoaFile,
       rows: cyoaFile.rows.map((row: SimplifiedRow) => (row.id === rowId ? { ...row, title: newName } : row)),
     });
   };
@@ -161,6 +226,7 @@ export function CyoaTab() {
     if (!cyoaFile) return;
 
     const selectedData = {
+      ...cyoaFile,
       rows: cyoaFile.rows.filter((row: SimplifiedRow) => selectedRows.has(row.id)),
     };
 
@@ -217,6 +283,7 @@ export function CyoaTab() {
       setCyoaFile(state.cyoaFile);
 
       const selectedData = {
+        pointTypes: state.cyoaFile.pointTypes || [],
         rows: state.cyoaFile.rows.filter((row: SimplifiedRow) => state.selectedRows.includes(row.id)),
       };
 
@@ -342,6 +409,7 @@ export function CyoaTab() {
           <CyoaRollingMenu
             ref={rollingMenuRef}
             cyoaData={cyoaData}
+            fullCyoa={cyoaFile}
             selectedRows={selectedRows}
             onKeepItem={addKeptItem}
             keptItems={keptItems}

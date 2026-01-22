@@ -1,6 +1,15 @@
 // Simplified CYOA types for rolling functionality
 export interface SimplifiedCyoa {
   rows: SimplifiedRow[];
+  pointTypes: SimplifiedPointType[];
+}
+
+export interface SimplifiedPointType {
+  id: string;
+  name: string;
+  beforeText: string;
+  afterText: string;
+  startingSum: number;
 }
 
 export interface SimplifiedRow {
@@ -21,6 +30,31 @@ export interface SimplifiedObject {
   imageIsURL?: boolean;
   imageLink?: string;
   addons?: SimplifiedAddon[];
+  scores?: SimplifiedScore[];
+  requireds?: SimplifiedRequirement[];
+}
+
+export interface SimplifiedScore {
+  id: string;
+  value: string;
+  beforeText?: string;
+  afterText?: string;
+  requireds?: SimplifiedRequirement[];
+}
+
+export interface SimplifiedRequirement {
+  id?: string;
+  type: string;
+  reqId?: string;
+  reqId1?: string;
+  reqId2?: string;
+  reqId3?: string;
+  required?: boolean;
+  beforeText?: string;
+  afterText?: string;
+  reqPoints?: number;
+  operator?: string;
+  orRequired?: Array<{ req: string }>;
 }
 
 export interface SimplifiedAddon {
@@ -30,6 +64,7 @@ export interface SimplifiedAddon {
   image?: string;
   imageIsURL?: boolean;
   imageLink?: string;
+  requireds?: SimplifiedRequirement[];
 }
 
 export interface CyoaSettings {
@@ -46,6 +81,15 @@ export interface PredefinedCyoa {
 // Full CYOA interfaces for parsing (only the needed fields)
 export interface FullCyoa {
   rows?: FullRow[];
+  pointTypes?: FullPointType[];
+}
+
+export interface FullPointType {
+  id: string;
+  name: string;
+  beforeText: string;
+  afterText: string;
+  startingSum: number;
 }
 
 export interface FullRow {
@@ -67,6 +111,31 @@ export interface FullObject {
   imageIsURL?: boolean;
   imageLink?: string;
   addons?: FullAddon[];
+  scores?: FullScore[];
+  requireds?: FullRequirement[];
+}
+
+export interface FullScore {
+  id: string;
+  value: string;
+  beforeText?: string;
+  afterText?: string;
+  requireds?: FullRequirement[];
+}
+
+export interface FullRequirement {
+  id?: string;
+  type?: string;
+  reqId?: string;
+  reqId1?: string;
+  reqId2?: string;
+  reqId3?: string;
+  required?: boolean;
+  beforeText?: string;
+  afterText?: string;
+  reqPoints?: number;
+  operator?: string;
+  orRequired?: Array<{ req: string }>;
 }
 
 export interface FullAddon {
@@ -76,4 +145,5 @@ export interface FullAddon {
   image?: string;
   imageIsURL?: boolean;
   imageLink?: string;
+  requireds?: FullRequirement[];
 }

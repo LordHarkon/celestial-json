@@ -18,7 +18,7 @@ export function FileSelector({ onFileSelect }: FileSelectorProps) {
       <label className="text-sm font-medium">Select a Celestial Document</label>
       <Select onValueChange={onFileSelect}>
         <SelectTrigger>
-          <SelectValue placeholder="Choose a CYOA..." />
+          <SelectValue placeholder="Choose a Celestial Document..." />
         </SelectTrigger>
         <SelectContent>
           {CELESTIAL_FILES.map((file) => (
